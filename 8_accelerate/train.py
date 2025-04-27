@@ -77,7 +77,7 @@ args = parser.parse_args()
 ### Init the Accelerator ###
 path_to_experiment = os.path.join(args.working_directory, args.experiment_name)
 accelerator = Accelerator(
-    log_with="wandb",
+    log_with=None,
     project_dir=path_to_experiment,
     gradient_accumulation_steps=args.gradient_accumulation_steps,
 )
@@ -206,11 +206,11 @@ for epoch in range(starting_epoch, args.epochs):
     accumulated_acc = 0
 
     progress_bar = tqdm(
-        range(train_dataloader) // args.gradient_accumulation_steps, disable=not accelerator.is_local_main_process
+        range(len(train_dataloader) // args.gradient_accumulation_steps), disable=not accelerator.is_local_main_process
     )
 
     model.train()
-    for step, (images, labels) in enumerate(train_dataloader):
+    for images, labels in train_dataloader:
         images, labels = images.to(accelerator.device), labels.to(accelerator.device)
 
         with accelerator.accumulate(model):
